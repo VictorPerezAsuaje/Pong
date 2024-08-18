@@ -3,16 +3,12 @@
 #include <raylib.h>
 #include <string.h>
 
+#include "ball.h"
+
 using namespace std;
 
 const int screenWidth = 1208;
 const int screenHeight = 720;
-
-int ballXPosition = screenWidth / 2;
-int ballYPosition = screenHeight / 2;
-int ballSize = 10;
-int ballYSpeed = 5;
-int ballXSpeed = 5;
 
 int limitLeft = 0;
 int limitRight = screenWidth;
@@ -23,21 +19,17 @@ int paddleHeight = screenHeight / 5;
 int paddleWidth = 10;
 int paddleSpeed = 5;
 
-int playerOneYPosition = screenHeight / 2;
-int playerOneXPosition = limitLeft + (ballSize + paddleWidth);
-int playerOneBottomLimit = limitBottom - paddleHeight;
+int playerOneYPosition;
+int playerOneXPosition;
+int playerOneBottomLimit;
 
-int playerTwoYPosition = screenHeight / 2;
-int playerTwoXPosition = limitRight - (ballSize * 2 + paddleWidth);
-int playerTwoBottomLimit = limitBottom - paddleHeight;
-
-bool ballGoesTop = false;
-bool ballGoesLeft = false;
+int playerTwoYPosition;
+int playerTwoXPosition;
+int playerTwoBottomLimit;
 
 bool metadata = false;
 
-bool endGame = false;
-string winner = "";
+GameOverDTO Status = GameOverDTO(false, "");
 
 void ToggleMetadata()
 {
@@ -98,35 +90,19 @@ void PlayerTwoController()
     }
 }
 
-void BallController()
+void BallController(Ball &ball)
 {
-    // Y POSITION
-    ballYPosition = ballGoesTop ? ballYPosition - ballYSpeed : ballYPosition + ballYSpeed;
-
-    if (ballYPosition + ballYSpeed > limitBottom || ballGoesTop)
-    {
-        ballGoesTop = true;
-    }
-
-    if (ballYPosition - ballYSpeed < limitTop || !ballGoesTop)
-    {
-        ballGoesTop = false;
-    }
-
-    // X POSITION
-    ballXPosition = ballGoesLeft ? ballXPosition - ballXSpeed : ballXPosition + ballXSpeed;
-
     if (metadata)
     {
-        cout << "Ball X: " + to_string(ballXPosition) << endl;
-        cout << "Ball Y: " + to_string(ballYPosition) << endl;
+        cout << "Ball X: " + to_string(ball.GetXPosition()) << endl;
+        cout << "Ball Y: " + to_string(ball.GetYPosition()) << endl;
         cout << "Player 1 X: " + to_string(playerOneXPosition) << endl;
         cout << "Player 1 Y: " + to_string(playerOneYPosition) << endl;
         cout << "Player 2 X: " + to_string(playerTwoXPosition) << endl;
         cout << "Player 2 Y: " + to_string(playerTwoYPosition) << endl;
         cout << "PaddleSize: " + to_string(paddleHeight / 2) << endl;
 
-        if (ballGoesLeft)
+        if (ball.IsGoingLeft())
         {
             cout << "Ball going left" << endl;
         }
@@ -136,65 +112,27 @@ void BallController()
         }
     }
 
-    // Check if crashes with paddle P1
-    if (ballXPosition - ballXSpeed <= playerOneXPosition + paddleWidth && ballGoesLeft)
-    {
-        if (ballYPosition > playerOneYPosition - paddleHeight / 2 && ballYPosition < playerOneYPosition + paddleHeight)
-        {
-            if (metadata)
-            {
-                cout << "Player one touches ball" << endl;
-            }
+    // Y POSITION
+    ball.CalculateYPosition();
 
-            ballGoesLeft = false;
-            return;
-        }
-
-        endGame = true;
-        winner = "Player Two";
-    }
-    else if (ballXPosition + ballXSpeed >= playerTwoXPosition - paddleWidth && !ballGoesLeft)
-    {
-        if (ballYPosition > playerTwoYPosition - paddleHeight / 2 && ballYPosition < playerTwoYPosition + paddleHeight)
-        {
-            if (metadata)
-            {
-                cout << "Player two touches ball" << endl;
-            }
-
-            ballGoesLeft = true;
-            return;
-        }
-
-        endGame = true;
-        winner = "Player One";
-    }
+    // // X POSITION
+    Status = ball.IsGameOver(playerOneXPosition, playerOneYPosition, playerTwoXPosition, playerTwoYPosition, paddleWidth, paddleHeight, metadata);
 }
 
-void StartGame()
+Ball StartGame()
 {
-    ballXPosition = screenWidth / 2;
-    ballYPosition = screenHeight / 2;
+    Ball ball = Ball(screenWidth, screenHeight);
 
     playerOneYPosition = screenHeight / 2;
-    playerOneXPosition = limitLeft + (ballSize + paddleWidth);
+    playerOneXPosition = limitLeft + (ball.GetSize() + paddleWidth);
     playerOneBottomLimit = limitBottom - paddleHeight;
 
     playerTwoYPosition = screenHeight / 2;
-    playerTwoXPosition = limitRight - (ballSize * 2 + paddleWidth);
+    playerTwoXPosition = limitRight - (ball.GetSize() * 2 + paddleWidth);
     playerTwoBottomLimit = limitBottom - paddleHeight;
 
-    endGame = false;
-    winner = "";
-
-    int randomTop = rand() % 100;
-    ballGoesTop = randomTop < 50;
-
-    int randomBottom = rand() % 100;
-    ballGoesLeft = randomBottom < 50;
-
-    ballYSpeed = rand() % 5 + 5;
-    ballXSpeed = rand() % 5 + 5;
+    Status = GameOverDTO(false, "");
+    return ball;
 }
 
 int main()
@@ -203,7 +141,7 @@ int main()
     InitWindow(screenWidth, screenHeight, "Pong!");
     SetTargetFPS(60);
 
-    StartGame();
+    Ball ball = StartGame();
 
     while (!WindowShouldClose())
     {
@@ -214,23 +152,23 @@ int main()
 
         DrawRectangle(playerOneXPosition, playerOneYPosition, paddleWidth, paddleHeight, RED);
         DrawRectangle(playerTwoXPosition, playerTwoYPosition, paddleWidth, paddleHeight, BLUE);
-        DrawCircle(ballXPosition, ballYPosition, ballSize, WHITE);
+        DrawCircle(ball.GetXPosition(), ball.GetYPosition(), ball.GetSize(), WHITE);
 
         if (IsKeyPressed(KEY_F2))
         {
             ToggleMetadata();
         }
 
-        if (endGame)
+        if (Status.Endgame)
         {
-            string winnerText = "Winner: " + winner;
+            string winnerText = "Winner: " + Status.Winner;
             char arrBuffer[sizeof(winnerText)];
             DrawText(strcpy(arrBuffer, winnerText.c_str()), screenWidth / 2 - 150, screenHeight / 2, 25, WHITE);
             DrawText("Press ENTER to play again", screenWidth / 2 - 145, screenHeight / 2 + 50, 16, WHITE);
 
             if (IsKeyPressed(KEY_ENTER))
             {
-                StartGame();
+                ball = StartGame();
             }
 
             EndDrawing();
@@ -239,7 +177,7 @@ int main()
 
         PlayerOneController();
         PlayerTwoController();
-        BallController();
+        BallController(ball);
 
         EndDrawing();
     }
