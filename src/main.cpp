@@ -63,8 +63,8 @@ int main()
         {
             string winnerText = "Winner: " + Status.Winner;
             char arrBuffer[sizeof(winnerText)];
-            DrawText(strcpy(arrBuffer, winnerText.c_str()), screenWidth / 2 - 150, screenHeight / 2, 25, WHITE);
-            DrawText("Press ENTER to play again", screenWidth / 2 - 145, screenHeight / 2 + 50, 16, WHITE);
+            DrawText(strcpy(arrBuffer, winnerText.c_str()), screenWidth / 2 - 130, screenHeight / 2, 25, WHITE);
+            DrawText("Press ENTER to play again", screenWidth / 2 - 125, screenHeight / 2 + 50, 16, WHITE);
 
             if (IsKeyPressed(KEY_ENTER))
             {
