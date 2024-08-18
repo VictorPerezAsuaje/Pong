@@ -30,7 +30,7 @@ public:
     bool IsGoingLeft();
 
     void CalculateYPosition();
-    GameOverDTO IsGameOver(int playerOneXPosition, int playerOneYPosition, int playerTwoXPosition, int playerTwoYPosition, int paddleWidth, int paddleHeight, bool metadata);
+    GameOverDTO IsGameOver(int playerOneXPosition, int playerOneYPosition, int playerTwoXPosition, int playerTwoYPosition, int paddleWidth, int paddleHeight);
 
 private:
     int XPosition;

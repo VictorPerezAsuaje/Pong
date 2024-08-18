@@ -57,20 +57,15 @@ void Ball::CalculateYPosition()
     }
 }
 
-GameOverDTO Ball::IsGameOver(int playerOneXPosition, int playerOneYPosition, int playerTwoXPosition, int playerTwoYPosition, int paddleWidth, int paddleHeight, bool metadata)
+GameOverDTO Ball::IsGameOver(int playerOneXPosition, int playerOneYPosition, int playerTwoXPosition, int playerTwoYPosition, int paddleWidth, int paddleHeight)
 {
     XPosition = GoesLeft ? XPosition - XSpeed : XPosition + XSpeed;
 
     // Check if crashes with paddle P1
     if (XPosition - XSpeed <= playerOneXPosition + paddleWidth && GoesLeft)
     {
-        if (YPosition > playerOneYPosition - paddleHeight / 2 && YPosition < playerOneYPosition + paddleHeight)
+        if (YPosition > playerOneYPosition /* - paddleHeight / 2*/ && YPosition < playerOneYPosition + paddleHeight)
         {
-            if (metadata)
-            {
-                cout << "Player one touches ball" << endl;
-            }
-
             GoesLeft = false;
             return GameOverDTO(false, "");
         }
@@ -80,13 +75,8 @@ GameOverDTO Ball::IsGameOver(int playerOneXPosition, int playerOneYPosition, int
 
     if (XPosition + XSpeed >= playerTwoXPosition - paddleWidth && !GoesLeft)
     {
-        if (YPosition > playerTwoYPosition - paddleHeight / 2 && YPosition < playerTwoYPosition + paddleHeight)
+        if (YPosition > playerTwoYPosition /*- paddleHeight / 2*/ && YPosition < playerTwoYPosition + paddleHeight)
         {
-            if (metadata)
-            {
-                cout << "Player two touches ball" << endl;
-            }
-
             GoesLeft = true;
             return GameOverDTO(false, "");
         }
