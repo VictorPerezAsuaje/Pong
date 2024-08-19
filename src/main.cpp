@@ -9,14 +9,6 @@
 
 using namespace std;
 
-// const int screenWidth = 1208;
-// const int screenHeight = 720;
-
-// int limitLeft = 0;
-// int limitRight = screenWidth;
-// int limitTop = 0;
-// int limitBottom = screenHeight;
-
 Game game = Game(1208, 720);
 Ball ball = game.CreateBall();
 Player playerOne = game.CreatePlayerOne();

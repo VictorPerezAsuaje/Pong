@@ -83,42 +83,59 @@ int Game::GetPlayerTwoWins()
 
 void Game::UpdateGameStatus(Ball &ball, Player &playerOne, Player &playerTwo)
 {
-    int paddleWidth = playerOne.GetPaddleWidth();
-    int paddleHeight = playerOne.GetPaddleHeight();
+    Vector2 ballVector = Vector2{
+        x : static_cast<float>(ball.GetXPosition()),
+        y : static_cast<float>(ball.GetYPosition())
+    };
 
-    // Check if crashes with paddle P1
-    if (ball.GetXPosition() - ball.GetXSpeed() <= playerOne.GetXPosition() + paddleWidth && ball.IsGoingLeft())
+    Rectangle playerOneRect = Rectangle{
+        x : static_cast<float>(playerOne.GetXPosition()),
+        y : static_cast<float>(playerOne.GetYPosition()),
+        width : static_cast<float>(playerOne.GetPaddleWidth()),
+        height : static_cast<float>(playerOne.GetPaddleHeight())
+    };
+
+    Rectangle playerTwoRect = Rectangle{
+        x : static_cast<float>(playerTwo.GetXPosition()),
+        y : static_cast<float>(playerTwo.GetYPosition()),
+        width : static_cast<float>(playerTwo.GetPaddleWidth()),
+        height : static_cast<float>(playerTwo.GetPaddleHeight())
+    };
+
+    if (CheckCollisionCircleRec(ballVector, ball.GetSize(), playerOneRect))
     {
-        if (ball.GetYPosition() > playerOne.GetYPosition() && ball.GetYPosition() < playerOne.GetYPosition() + paddleHeight)
-        {
-            ball.UpdateDirection(false);
-            return;
-        }
-
-        if (!CurrentGameEnded)
-        {
-            NumberOfP2Wins += 1;
-            CurrentGameEnded = true;
-            CurrentGameWinner = "Player Two";
-        }
+        ball.UpdateDirection(false);
+        return;
     }
 
-    // Check if crashes with paddle two
-    if (ball.GetXPosition() + ball.GetXSpeed() >= playerTwo.GetXPosition() && !ball.IsGoingLeft())
+    if (CheckCollisionCircleRec(ballVector, ball.GetSize(), playerTwoRect))
     {
-        if (ball.GetYPosition() > playerTwo.GetYPosition() && ball.GetYPosition() < playerTwo.GetYPosition() + paddleHeight)
-        {
-            ball.UpdateDirection(true);
-            return;
-        }
-
-        if (!CurrentGameEnded)
-        {
-            NumberOfP1Wins += 1;
-            CurrentGameEnded = true;
-            CurrentGameWinner = "Player One";
-        }
+        ball.UpdateDirection(true);
+        return;
     }
+
+    // Ball just moving through the space
+    if (ball.GetXPosition() > 0 && ball.GetXPosition() < ScreenWidth)
+    {
+        return;
+    }
+
+    if (CurrentGameEnded)
+    {
+        return;
+    }
+
+    CurrentGameEnded = true;
+
+    if (ball.IsGoingLeft())
+    {
+        NumberOfP2Wins += 1;
+        CurrentGameWinner = "Player Two";
+        return;
+    }
+
+    NumberOfP1Wins += 1;
+    CurrentGameWinner = "Player One";
 }
 
 bool Game::IsGameOver()
