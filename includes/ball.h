@@ -4,35 +4,31 @@
 #include <stdlib.h>
 #include <string>
 
+#include "player.h"
+
 using namespace std;
-
-class GameOverDTO
-{
-public:
-    GameOverDTO(bool endgame, string winner)
-    {
-        Endgame = endgame;
-        Winner = winner;
-    }
-
-    bool Endgame;
-    string Winner;
-};
 
 class Ball
 {
+    friend class Game;
+
 public:
-    Ball(int screenWidth, int screenHeight);
     int GetSize();
     int GetXPosition();
     int GetYPosition();
 
+    int GetXSpeed();
+    int GetYSpeed();
+
     bool IsGoingLeft();
 
-    void CalculateYPosition();
-    GameOverDTO IsGameOver(int playerOneXPosition, int playerOneYPosition, int playerTwoXPosition, int playerTwoYPosition, int paddleWidth, int paddleHeight);
+    void UpdatePosition();
+    void UpdateDirection(bool goesLeft);
+    void Draw();
 
 private:
+    Ball(int screenWidth, int screenHeight);
+
     int XPosition;
     int YPosition;
     int Size;

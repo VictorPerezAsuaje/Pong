@@ -1,17 +1,20 @@
 #include <iostream>
-#include "player.h"
 
-Player::Player(int screenHeight, int screenWidth, KeyboardKey up, KeyboardKey down, int maxTopPosition, int maxBottomPosition, bool isPlayerOne)
+#include "player.h"
+#include "game.h"
+
+Player::Player(int screenWidth, int screenHeight, bool isPlayerOne)
 {
     PaddleHeight = screenHeight / 5;
     PaddleWidth = 10;
     PaddleSpeed = 5;
 
-    Up = up;
-    Down = down;
+    IsPlayerOne = isPlayerOne;
+    Up = isPlayerOne ? KEY_W : KEY_UP;
+    Down = isPlayerOne ? KEY_S : KEY_DOWN;
 
-    MaxTopPosition = maxTopPosition;
-    MaxBottomPosition = maxBottomPosition - PaddleHeight;
+    MaxTopPosition = 0;
+    MaxBottomPosition = screenHeight - PaddleHeight;
 
     YPosition = screenHeight / 2;
     XPosition = isPlayerOne ? 0 : screenWidth - PaddleWidth;
@@ -48,4 +51,9 @@ int Player::GetPaddleHeight()
 int Player::GetPaddleWidth()
 {
     return PaddleWidth;
+}
+
+void Player::Draw()
+{
+    DrawRectangle(XPosition, YPosition, PaddleWidth, PaddleHeight, IsPlayerOne ? RED : BLUE);
 }

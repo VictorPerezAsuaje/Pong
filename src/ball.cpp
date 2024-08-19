@@ -1,5 +1,6 @@
-#include "ball.h"
 #include <iostream>
+#include "ball.h"
+#include "player.h"
 
 Ball::Ball(int screenWidth, int screenHeight)
 {
@@ -41,9 +42,13 @@ bool Ball::IsGoingLeft()
     return GoesLeft;
 }
 
-void Ball::CalculateYPosition()
+void Ball::Draw()
 {
-    cout << "I'm in" << endl;
+    DrawCircle(XPosition, YPosition, Size, WHITE);
+}
+
+void Ball::UpdatePosition()
+{
     YPosition = GoesTop ? YPosition - YSpeed : YPosition + YSpeed;
 
     if (YPosition + YSpeed > LimitBottom || GoesTop)
@@ -55,34 +60,21 @@ void Ball::CalculateYPosition()
     {
         GoesTop = false;
     }
+
+    XPosition = GoesLeft ? XPosition - XSpeed : XPosition + XSpeed;
 }
 
-GameOverDTO Ball::IsGameOver(int playerOneXPosition, int playerOneYPosition, int playerTwoXPosition, int playerTwoYPosition, int paddleWidth, int paddleHeight)
+void Ball::UpdateDirection(bool goesLeft)
 {
-    XPosition = GoesLeft ? XPosition - XSpeed : XPosition + XSpeed;
+    GoesLeft = goesLeft;
+}
 
-    // Check if crashes with paddle P1
-    if (XPosition - XSpeed <= playerOneXPosition + paddleWidth && GoesLeft)
-    {
-        if (YPosition > playerOneYPosition /* - paddleHeight / 2*/ && YPosition < playerOneYPosition + paddleHeight)
-        {
-            GoesLeft = false;
-            return GameOverDTO(false, "");
-        }
+int Ball::GetXSpeed()
+{
+    return XSpeed;
+}
 
-        return GameOverDTO(true, "Player Two");
-    }
-
-    if (XPosition + XSpeed >= playerTwoXPosition - paddleWidth && !GoesLeft)
-    {
-        if (YPosition > playerTwoYPosition /*- paddleHeight / 2*/ && YPosition < playerTwoYPosition + paddleHeight)
-        {
-            GoesLeft = true;
-            return GameOverDTO(false, "");
-        }
-
-        return GameOverDTO(true, "Player One");
-    }
-
-    return GameOverDTO(false, "");
+int Ball::GetYSpeed()
+{
+    return YSpeed;
 }
